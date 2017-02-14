@@ -20,6 +20,7 @@ import android.widget.ListView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private ArrayList<Book> bookList=new ArrayList<Book>(); //保持列表对象的唯一性
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     void initial(){
-
+        bookList.clear();
         MyDatabaseHelper dbHelper=new MyDatabaseHelper(this,"Reader.db",null,1);
         db=dbHelper.getWritableDatabase();
         Cursor cursor=db.query("Book",null,null,null,null,null,null);
@@ -90,21 +91,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 System.out.println(name);
                 int id=cursor.getInt(cursor.getColumnIndex("cover"));
                 String path=cursor.getString(cursor.getColumnIndex("path"));
-                if(id==0){
-                    System.out.println("Yes");
+                if(id==0){ //默认值为0，不设封面
                     id=R.drawable.blue;
                 }
                 Book book=new Book(name,id);
-                boolean flag=false; //此种方法实现错误，应该清空列表，重新添加；由数据库保证数据的唯一性
-                for(int i=0;i<bookList.size();i++){
-                    Log.d("Main","name a is "+bookList.get(i).getName()+" name b is "+book.getName());
-                    if(bookList.get(i).getName().equals(book.getName())){
-                        flag=true;
-                    }
-                }
-                if(!flag){
-                    bookList.add(book);
-                }
+                bookList.add(book);
             }while(cursor.moveToNext());
         }
         cursor.close();
@@ -133,36 +124,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 layerList.add(layerBuffList[i]);
             }
         }
-//        Book book1=new Book("history",R.drawable.blue);
-//        Book book2=new Book("math",R.drawable.yellow);
-//        Book book3=new Book("english",R.drawable.blue);
-//        Book book4=new Book("chinese",R.drawable.yellow);
-//
-//        bookList.add(book1);
-//        bookList.add(book2);
-//        bookList.add(book3);
-//        bookList.add(book4);
-//
-//        for(int i=0;i<bookList.size();i++){
-//
-//        }
-
-//        BookLayer layer1=new BookLayer();
-//        BookLayer layer2=new BookLayer();
-//
-//        layer1.add(book1);
-//        layer1.add(book2);
-//        layer1.add(book3);
-//
-//        layer2.add(book4);
-//        layer2.add(book1);
-//
-//        layerList.add(layer1);
-//        layerList.add(layer2);
-//        layerList.add(layer1);
-//        layerList.add(layer2);
-//        layerList.add(layer1);
-//        layerList.add(layer2);
 
     }
 
@@ -170,9 +131,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.add_book:
+                SerializableStack<String> stack=new SerializableStack<String>();
                 Intent intent=new Intent(MainActivity.this,CatalogActivity.class);
                 File root= Environment.getExternalStorageDirectory();
                 intent.putExtra("current_path",root.getPath());
+                intent.putExtra("path_stack",stack);
                 startActivity(intent);
                 break;
         }

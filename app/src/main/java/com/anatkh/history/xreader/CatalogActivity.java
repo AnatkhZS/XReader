@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
@@ -29,6 +30,7 @@ public class CatalogActivity extends Activity implements View.OnClickListener{
     private ArrayList<CatalogFile> catalog=new ArrayList<CatalogFile>();
     private String currentPath="";
     private SQLiteDatabase db;
+    private SerializableStack<String> stack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -39,13 +41,14 @@ public class CatalogActivity extends Activity implements View.OnClickListener{
         Button cancel=(Button)findViewById(R.id.cancel);
         Button back=(Button)findViewById(R.id.back);
         cancel.setOnClickListener(this);
+        back.setOnClickListener(this);
         TextView current_path=(TextView)findViewById(R.id.current_path);
 
         Intent intent=getIntent();
-        String path=intent.getStringExtra("current_path");
-        currentPath=path;
+        currentPath=intent.getStringExtra("current_path");
         current_path.setText(currentPath);
-
+        stack= (SerializableStack<String>) intent.getSerializableExtra("path_stack");
+        stack.push(currentPath);
         getDir();
 
         ArrayAdapter<CatalogFile> adapter=new ArrayAdapter<CatalogFile>(CatalogActivity.this,android.R.layout.simple_list_item_1,catalog);
@@ -56,23 +59,29 @@ public class CatalogActivity extends Activity implements View.OnClickListener{
                 CatalogFile file=catalog.get(position);
                 if(file.getType()=="catalog"){
                     finish();
+                    String path=file.getPath();
                     Intent intent=new Intent(CatalogActivity.this,CatalogActivity.class);
-                    intent.putExtra("current_path",file.getPath());
+                    intent.putExtra("current_path",path);
+                    intent.putExtra("path_stack",stack);
                     startActivity(intent);
                 }else if(file.getType()=="file"){
                     MyDatabaseHelper dbHelper=new MyDatabaseHelper(CatalogActivity.this,"Reader.db",null,1);
                     db=dbHelper.getWritableDatabase();
-                    ContentValues values=new ContentValues();
-                    values.put("name",file.getName());
-                    values.put("path",file.getPath());
-                    db.insert("Book",null,values);
-                    finish();
+                    Cursor cursor=db.rawQuery("select * from Book where name=?",new String[]{file.getName()});
+                    if(cursor.getCount()>0){
+                        //提示已存在文件
+                    }else{
+                        ContentValues values=new ContentValues();
+                        values.put("name",file.getName());
+                        values.put("path",file.getPath());
+                        db.insert("Book",null,values);
+                        cursor.close();
+                        finish();
+                    }
                 }
 
             }
         });
-
-
     }
 
     public void getDir(){
@@ -106,7 +115,18 @@ public class CatalogActivity extends Activity implements View.OnClickListener{
                 this.finish();
                 break;
             case R.id.back:
-                break;
+                this.finish();
+                stack.pop();
+                if(stack.isEmpty()){
+                    break;
+                }else{
+                    String path=(String)stack.peek();
+                    Intent intent=new Intent(CatalogActivity.this,CatalogActivity.class);
+                    intent.putExtra("current_path",path);
+                    intent.putExtra("path_stack",stack);
+                    startActivity(intent);
+                    break;
+                }
         }
     }
 }
