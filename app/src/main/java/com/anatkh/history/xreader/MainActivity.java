@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.add_book:
-                SerializableStack<String> stack=new SerializableStack<String>();
+                SerializableStack stack=new SerializableStack();
                 Intent intent=new Intent(MainActivity.this,CatalogActivity.class);
                 File root= Environment.getExternalStorageDirectory();
                 intent.putExtra("current_path",root.getPath());

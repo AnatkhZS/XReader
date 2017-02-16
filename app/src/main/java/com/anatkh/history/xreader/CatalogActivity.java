@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,7 +31,7 @@ public class CatalogActivity extends Activity implements View.OnClickListener{
     private ArrayList<CatalogFile> catalog=new ArrayList<CatalogFile>();
     private String currentPath="";
     private SQLiteDatabase db;
-    private SerializableStack<String> stack;
+    private SerializableStack stack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -47,7 +48,7 @@ public class CatalogActivity extends Activity implements View.OnClickListener{
         Intent intent=getIntent();
         currentPath=intent.getStringExtra("current_path");
         current_path.setText(currentPath);
-        stack= (SerializableStack<String>) intent.getSerializableExtra("path_stack");
+        stack= (SerializableStack) intent.getSerializableExtra("path_stack");
         stack.push(currentPath);
         getDir();
 
@@ -87,24 +88,26 @@ public class CatalogActivity extends Activity implements View.OnClickListener{
     public void getDir(){
         File file=new File(currentPath);
         System.out.println(currentPath);
-        if(file!=null){
+        if(file!=null){ //遍历2次分别获得文件夹和文件，能否只遍历一次
             File[] fileList=file.listFiles();
             for(int i=0;i<fileList.length;i++){
                 if(fileList[i].isDirectory()){
                     CatalogFile catalogFile=new CatalogFile(fileList[i].toString(),"catalog");
                     catalog.add(catalogFile);
-                }else{
-                    CatalogFile catalogFile=new CatalogFile(fileList[i].toString(),"file");
-                    catalog.add(catalogFile);
-//                    String[] buffArray=catalogFile.getPath().split(".");
-//                    if(buffArray.length>=1) {
-//                        if (buffArray[buffArray.length - 1] == "txt") {
-//                            catalog.add(catalogFile);
-//                        }
-//                    }
                 }
             }
-
+            for(int i=0;i<fileList.length;i++){
+                if(!fileList[i].isDirectory()){
+                    CatalogFile catalogFile=new CatalogFile(fileList[i].toString(),"file");
+                    String path=catalogFile.getPath();
+                    if(path.length()>4){
+                        String type=path.substring(path.length()-4);
+                        if (type.equals(".txt")){
+                            catalog.add(catalogFile);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -117,7 +120,7 @@ public class CatalogActivity extends Activity implements View.OnClickListener{
             case R.id.back:
                 this.finish();
                 stack.pop();
-                if(stack.isEmpty()){
+                if(stack.getLength()<=0){
                     break;
                 }else{
                     String path=(String)stack.peek();
