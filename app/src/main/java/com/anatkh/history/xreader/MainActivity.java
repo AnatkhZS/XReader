@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     BookShelfAdapter adapter;
     private SQLiteDatabase db;
     private int pos=-1;
+    private boolean isResume=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +52,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume(){
         super.onResume();
-        initial();
-        adapter.notifyDataSetChanged();
+        if (isResume){
+            isResume=false;
+            initial();
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private BookShelfAdapter.MyClickListener mListener = new BookShelfAdapter.MyClickListener() {
@@ -73,7 +77,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             BookLayer layer=layerList.get(position);
             Book book=layer.getList().get(pos);
             System.out.println(book.getName());
-
+            Intent intent=new Intent(MainActivity.this,PageActivity.class);
+            intent.putExtra("Path",book.getPath());
+            isResume=true;
+            startActivity(intent);
             pos=-1;
         }
     };
@@ -94,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(id==0){ //默认值为0，不设封面
                     id=R.drawable.blue;
                 }
-                Book book=new Book(name,id);
+                Book book=new Book(name,path,id);
                 bookList.add(book);
             }while(cursor.moveToNext());
         }
@@ -136,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 File root= Environment.getExternalStorageDirectory();
                 intent.putExtra("current_path",root.getPath());
                 intent.putExtra("path_stack",stack);
+                isResume=true;
                 startActivity(intent);
                 break;
         }

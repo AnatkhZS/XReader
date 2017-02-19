@@ -25,6 +25,13 @@
             android:label="Catalog">
 
         </activity>
+
+        <activity
+            android:name=".PageActivity"
+            android:launchMode="singleTask"
+            android:label="Page">
+
+        </activity>
     </application>
 
 </manifest>
