@@ -63,13 +63,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void myOnClick(int position,View view) {
             switch(view.getId()){
-                case R.id.image1:
+                case R.id.column1:
                     pos=0;
                     break;
-                case R.id.image2:
+                case R.id.column2:
                     pos=1;
                     break;
-                case R.id.image3:
+                case R.id.column3:
                     pos=2;
                     break;
             }
