@@ -73,7 +73,7 @@ public class CatalogActivity extends Activity implements View.OnClickListener{
                         //提示已存在文件
                     }else{
                         ContentValues values=new ContentValues();
-                        values.put("name",file.getName());
+                        values.put("name",file.getName().split("\\.")[0]);
                         values.put("path",file.getPath());
                         db.insert("Book",null,values);
                         cursor.close();
