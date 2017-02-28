@@ -79,7 +79,7 @@
         jumboMode="true"
         optimize="true"
         revision="24.0.1"
-        sha1="c639471b0af9d8d877bcbaa18a1d7fb42a2d9c4a">
+        sha1="30adac016660eeab295c3a41f5bb2de8950824be">
         <dex dex="D:\AndroidWorkspace\XReader\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run_18af833a9aa00a65682f96c93d98a6bb89e91b33\classes.dex" />
     </item>
     <item
@@ -106,7 +106,7 @@
         jumboMode="true"
         optimize="true"
         revision="24.0.1"
-        sha1="5e9d482ef666d1405943fb4fa72cfef9fd999b30">
+        sha1="cc12a6c75b1771ffdc10a15b2a32993730a77dae">
         <dex dex="D:\AndroidWorkspace\XReader\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_4bb7e0b57a203d139ba02f73d8ba7b36e124e104\classes.dex" />
     </item>
 
